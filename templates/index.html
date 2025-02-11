@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Jurnal AI</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .chat-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+        }
+        .chat-box { height: 300px; overflow-y: auto; border-bottom: 1px solid #ddd; margin-bottom: 10px; }
+        .chat-input { display: flex; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px; border: none; background: #007BFF; color: white; border-radius: 5px; margin-left: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <button class="chat-button" onclick="toggleChat()">Tanya Jurnal?</button>
+    <div class="chat-container" id="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Tanyakan sesuatu...">
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            let chatContainer = document.getElementById("chat-container");
+            chatContainer.style.display = chatContainer.style.display === "none" ? "flex" : "none";
+        }
+
+        function sendMessage() {
+            let inputField = document.getElementById("user-input");
+            let message = inputField.value;
+            if (!message) return;
+
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p><b>Anda:</b> ${message}</p>`;
+            inputField.value = "";
+
+            fetch("/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.innerHTML += `<p><b>AI:</b> ${data.answer}</p>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
